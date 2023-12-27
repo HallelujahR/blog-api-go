@@ -16,7 +16,7 @@ func InitRouter(g *gin.Engine) *gin.Engine {
 func InitUserRouter(g *gin.Engine) *gin.Engine {
 	u := g.Group("/user")
 	{
-		u.GET("/register", user.Test)
+		u.POST("/register", user.Register)
 	}
 	return g
 
