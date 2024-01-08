@@ -1,18 +1,27 @@
 package userservice
 
 import (
+	securityQuestionDao "blog/model/dao/security_question"
 	dao "blog/model/dao/user"
+	usersecurityquestionservice "blog/model/service/user_security_question"
 	"errors"
 	"net/mail"
 	"regexp"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
+
+type InputParams struct {
+	User             dao.User
+	SecurityQuestion []securityQuestionDao.UserSecurityQuestion
+}
 
 // 注册用户
 func Register(g *gin.Context) (*dao.User, error) {
-	var params dao.User
+	var params InputParams
 	err := g.BindJSON(&params)
+
 	if err != nil {
 		return nil, err
 	}
@@ -20,18 +29,31 @@ func Register(g *gin.Context) (*dao.User, error) {
 	if err := CheckParams(g, params); err != nil {
 		return nil, err
 	}
-	//插入数据
-	data, err := dao.CreateUser(g, params)
+
+	//密码加密
+	password, err := HandlePassword(params.User.Password)
 	if err != nil {
 		return nil, err
 	}
+	params.User.Password = password
+	//插入数据
+	data, err := dao.CreateUser(g, params.User)
+	if err != nil {
+		return nil, err
+	}
+	// 处理密保问题
+	err = usersecurityquestionservice.HandleSecurityQuestion(g, data.ID, params.SecurityQuestion)
+	if err != nil {
+		return nil, err
+	}
+
 	return data, nil
 }
 
-func CheckParams(g *gin.Context, params dao.User) error {
-
+func CheckParams(g *gin.Context, params InputParams) error {
+	userData := params.User
 	// 验证手机号/邮箱是否已经存在
-	record, err := dao.GetUserByCond(g, params.Phonenumber, params.Email)
+	record, err := dao.GetUserByCond(g, userData.Phonenumber, userData.Email)
 	if err != nil {
 		return err
 	}
@@ -42,19 +64,19 @@ func CheckParams(g *gin.Context, params dao.User) error {
 	//验证手机号是否合法
 	regRuler := "^1[345789]{1}\\d{9}$"
 	reg := regexp.MustCompile(regRuler)
-	matched := reg.MatchString(params.Phonenumber)
+	matched := reg.MatchString(userData.Phonenumber)
 	if matched == false {
 		return errors.New("手机号格式不正确")
 	}
 
 	//验证邮箱是否合法
-	_, err = mail.ParseAddress(params.Email)
+	_, err = mail.ParseAddress(userData.Email)
 	if err != nil {
 		return errors.New("邮箱格式错误")
 	}
 
 	//验证密码是否合法
-	err = CheckPassword(params.Password)
+	err = CheckPassword(userData.Password)
 	if err != nil {
 		return err
 	}
@@ -85,4 +107,14 @@ func CheckPassword(password string) error {
 		return errors.New("密码中需要包含至少一个特殊符号")
 	}
 	return nil
+}
+
+// 密码加密
+func HandlePassword(password string) (string, error) {
+	// GenerateFromPassword 返回密码的bcrypt哈希值
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
 }

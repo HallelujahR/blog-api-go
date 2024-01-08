@@ -1,6 +1,7 @@
 package router
 
 import (
+	securityquestion "blog/controller/security_question"
 	"blog/controller/user"
 
 	"github.com/gin-gonic/gin"
@@ -17,6 +18,7 @@ func InitUserRouter(g *gin.Engine) *gin.Engine {
 	u := g.Group("/user")
 	{
 		u.POST("/register", user.Register)
+		u.GET("/security_question", securityquestion.GetSecurityQuestion)
 	}
 	return g
 
