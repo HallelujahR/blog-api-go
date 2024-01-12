@@ -1,27 +1,28 @@
 package userservice
 
 import (
+	"blog/library"
 	securityQuestionDao "blog/model/dao/security_question"
 	dao "blog/model/dao/user"
 	usersecurityquestionservice "blog/model/service/user_security_question"
 	"errors"
+	"fmt"
 	"net/mail"
 	"regexp"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type InputParams struct {
-	User             dao.User
-	SecurityQuestion []securityQuestionDao.UserSecurityQuestion
+	dao.User
+	SecurityQuestion []securityQuestionDao.UserSecurityQuestion `json:"security_question"`
 }
 
 // 注册用户
 func Register(g *gin.Context) (*dao.User, error) {
 	var params InputParams
 	err := g.BindJSON(&params)
-
+	fmt.Println(params)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +32,7 @@ func Register(g *gin.Context) (*dao.User, error) {
 	}
 
 	//密码加密
-	password, err := HandlePassword(params.User.Password)
+	password, err := library.HashString(params.User.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +52,7 @@ func Register(g *gin.Context) (*dao.User, error) {
 }
 
 func CheckParams(g *gin.Context, params InputParams) error {
-	userData := params.User
+	userData := params
 	// 验证手机号/邮箱是否已经存在
 	record, err := dao.GetUserByCond(g, userData.Phonenumber, userData.Email)
 	if err != nil {
@@ -107,14 +108,4 @@ func CheckPassword(password string) error {
 		return errors.New("密码中需要包含至少一个特殊符号")
 	}
 	return nil
-}
-
-// 密码加密
-func HandlePassword(password string) (string, error) {
-	// GenerateFromPassword 返回密码的bcrypt哈希值
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hash), nil
 }

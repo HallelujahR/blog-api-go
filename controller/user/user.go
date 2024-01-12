@@ -35,3 +35,23 @@ func Register(g *gin.Context) {
 	g.JSON(http.StatusOK, returnData)
 
 }
+
+// 用户登陆
+func Login(g *gin.Context) {
+	data, err := userservice.Login(g)
+	if err != nil {
+		returnData := map[string]interface{}{
+			"message": err.Error(),
+			"status":  http.StatusInternalServerError,
+			"data":    data,
+		}
+		g.JSON(http.StatusInternalServerError, returnData)
+		return
+	}
+	returnData := map[string]interface{}{
+		"message": "successs",
+		"status":  http.StatusOK,
+		"data":    data,
+	}
+	g.JSON(http.StatusOK, returnData)
+}
