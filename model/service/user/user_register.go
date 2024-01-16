@@ -6,7 +6,6 @@ import (
 	dao "blog/model/dao/user"
 	usersecurityquestionservice "blog/model/service/user_security_question"
 	"errors"
-	"fmt"
 	"net/mail"
 	"regexp"
 
@@ -14,15 +13,14 @@ import (
 )
 
 type InputParams struct {
-	dao.User
-	SecurityQuestion []securityQuestionDao.UserSecurityQuestion `json:"security_question"`
+	dao.User         `json:"user"`
+	SecurityQuestion []*securityQuestionDao.UserSecurityQuestion `json:"security_question"`
 }
 
 // 注册用户
 func Register(g *gin.Context) (*dao.User, error) {
 	var params InputParams
 	err := g.BindJSON(&params)
-	fmt.Println(params)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +50,7 @@ func Register(g *gin.Context) (*dao.User, error) {
 }
 
 func CheckParams(g *gin.Context, params InputParams) error {
-	userData := params
+	userData := params.User
 	// 验证手机号/邮箱是否已经存在
 	record, err := dao.GetUserByCond(g, userData.Phonenumber, userData.Email)
 	if err != nil {

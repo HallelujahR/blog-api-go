@@ -25,3 +25,22 @@ func GetSecurityQuestion(g *gin.Context) {
 	}
 	g.JSON(http.StatusOK, returnData)
 }
+
+func GetSecurityQuestionByUser(g *gin.Context) {
+	data, err := usersecurityquestionservice.GetSecurityQuestionByUser(g)
+	if err != nil {
+		returnData := map[string]interface{}{
+			"message": err.Error(),
+			"status":  http.StatusInternalServerError,
+			"data":    data,
+		}
+		g.JSON(http.StatusInternalServerError, returnData)
+		return
+	}
+	returnData := map[string]interface{}{
+		"message": "successs",
+		"status":  http.StatusOK,
+		"data":    data,
+	}
+	g.JSON(http.StatusOK, returnData)
+}

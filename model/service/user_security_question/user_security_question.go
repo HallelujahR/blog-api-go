@@ -17,7 +17,7 @@ func GetSecurityQuestion(g *gin.Context) (any, error) {
 }
 
 // 处理密保问题
-func HandleSecurityQuestion(g *gin.Context, userID int64, securityQuestion []dao.UserSecurityQuestion) error {
+func HandleSecurityQuestion(g *gin.Context, userID int64, securityQuestion []*dao.UserSecurityQuestion) error {
 	//添加userid
 	for _, v := range securityQuestion {
 		v.UserID = userID

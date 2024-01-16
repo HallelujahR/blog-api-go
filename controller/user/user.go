@@ -42,8 +42,28 @@ func Login(g *gin.Context) {
 	if err != nil {
 		returnData := map[string]interface{}{
 			"message": err.Error(),
+			"status":  http.StatusUnauthorized,
+			"data":    nil,
+		}
+		g.JSON(http.StatusUnauthorized, returnData)
+		return
+	}
+	returnData := map[string]interface{}{
+		"message": "successs",
+		"status":  http.StatusOK,
+		"data":    data,
+	}
+	g.JSON(http.StatusOK, returnData)
+}
+
+// 找回密码
+func ResetPassword(g *gin.Context) {
+	data, err := userservice.ResetPassword(g)
+	if err != nil {
+		returnData := map[string]interface{}{
+			"message": err.Error(),
 			"status":  http.StatusInternalServerError,
-			"data":    data,
+			"data":    nil,
 		}
 		g.JSON(http.StatusInternalServerError, returnData)
 		return
