@@ -15,8 +15,8 @@ type User struct {
 	Email       string `gorm:"column:email;" json:"email"`
 	Password    string `gorm:"column:password;" json:"password"`
 	Status      int32  `gorm:"column:status;" json:"status"`
-	UpdatedTime int32  `gorm:"column:updated_time;" json:"updated_time"`
-	CreatedTime int32  `gorm:"column:created_time;" json:"created_time"`
+	UpdatedAt   int32  `gorm:"column:updated_at;" json:"updated_at"`
+	CreatedAt   int32  `gorm:"column:created_at;" json:"created_at"`
 }
 
 // TableName QuestionMark's table name
@@ -26,12 +26,12 @@ func (*User) TableName() string {
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {
 	// 在插入记录之前自动填充创建时间
-	u.CreatedTime = int32(time.Now().Unix())
-	u.UpdatedTime = int32(time.Now().Unix())
+	u.CreatedAt = int32(time.Now().Unix())
+	u.UpdatedAt = int32(time.Now().Unix())
 	return nil
 }
 
 func (u *User) BeforeUpdate(tx *gorm.DB) error {
-	u.UpdatedTime = int32(time.Now().Unix())
+	u.UpdatedAt = int32(time.Now().Unix())
 	return nil
 }
