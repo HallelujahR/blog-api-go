@@ -39,3 +39,13 @@ func CreateUser(g *gin.Context, user User) (*User, error) {
 
 	return &user, nil
 }
+
+// 根据电话号修改信息
+func UpdateUserByPhone(g *gin.Context, phone string, data map[string]any) (map[string]any, error) {
+	db := dao.NewDbDao(g)
+	tx := db.Model(&User{}).Where("phonenumber = ?", phone).Updates(data)
+	if tx != nil {
+		return data, tx.Error
+	}
+	return data, nil
+}

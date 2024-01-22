@@ -39,7 +39,6 @@ func Login(g *gin.Context) (any, error) {
 	}
 	//密码验证通过后生成token 使用phonenumber生成
 	token, err := jwt.GenerateToken(userData.Phonenumber)
-
 	if err != nil {
 		return nil, err
 	}

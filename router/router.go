@@ -9,7 +9,6 @@ import (
 
 // 初始化路由
 func InitRouter(g *gin.Engine) *gin.Engine {
-
 	g = InitUserRouter(g)
 	return g
 }
@@ -24,6 +23,8 @@ func InitUserRouter(g *gin.Engine) *gin.Engine {
 		u.GET("/security_question", securityquestion.GetSecurityQuestion)            //密保问题获取
 		u.POST("/reset_password", user.ResetPassword)                                //重制密码
 		u.POST("/get_security_question", securityquestion.GetSecurityQuestionByUser) //重制密码获取密保问题
+		u.POST("/check_security_question", securityquestion.CheckSecurityQuestion)   //验证密保问题
+
 	}
 	//主页
 

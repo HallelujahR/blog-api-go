@@ -1,7 +1,8 @@
 package resource
 
 var Config struct {
-	DB mysqlEnv `toml:"mysql"`
+	DB    mysqlEnv `toml:"mysql"`
+	Redis RedisEnv `toml:"redis"`
 }
 
 type mysqlEnv struct {
@@ -19,4 +20,11 @@ type mysqlEnv struct {
 	Log      bool
 	LogFile  string
 	LogLevel int
+}
+
+type RedisEnv struct {
+	Host     string
+	Port     int
+	DB       int
+	Password string
 }

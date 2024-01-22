@@ -9,6 +9,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -18,6 +19,7 @@ func MustInit(g *gin.Engine) *gin.Engine {
 	c := router.InitRouter(g)
 
 	InitMysql(g)
+	InitRedis(g)
 	return c
 }
 
@@ -42,7 +44,24 @@ func InitMysql(g *gin.Engine) {
 }
 
 // 初始化redis
-func InitRedis() {
+func InitRedis(g *gin.Engine) {
+	err := InitConf(g, "redis")
+	if err != nil {
+		panic(err)
+	}
+	redisConf := resource.Config.Redis
+	dns := fmt.Sprintf("%s:%d", redisConf.Host, redisConf.Port)
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     dns,                // Redis 地址
+		Password: redisConf.Password, // Redis 密码，没有则留空
+		DB:       redisConf.DB,       // 使用默认 DB
+	})
+	// 检查连接
+	err = rdb.Ping().Err()
+	if err != nil {
+		panic(err)
+	}
+	resource.RedisClient = rdb
 
 }
 

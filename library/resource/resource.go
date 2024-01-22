@@ -4,7 +4,13 @@
 
 package resource
 
-import "gorm.io/gorm"
+import (
+	"github.com/go-redis/redis"
+	"gorm.io/gorm"
+)
 
 // MySQLClient 数据库连接池
 var MySQLClient *gorm.DB
+
+// RedisClient redis连接池
+var RedisClient *redis.Client

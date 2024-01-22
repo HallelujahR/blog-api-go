@@ -21,8 +21,19 @@ type UserQuestionOutputParams struct {
 func GetSecurityQuestionByUser(g *gin.Context) ([]UserQuestionOutputParams, error) {
 	var params InputParams
 	err := g.BindJSON(&params)
+	if err != nil {
+		return nil, err
+	}
+	returnData, err := HandleQuestionData(g, params.Phonenumber, params.Email, false)
+	if err != nil {
+		return nil, err
+	}
+	return returnData, nil
+}
+
+func HandleQuestionData(g *gin.Context, phone, email string, flag bool) ([]UserQuestionOutputParams, error) {
 	//获取用户ID
-	userData, err := userDao.GetUserByCond(g, params.Phonenumber, params.Email)
+	userData, err := userDao.GetUserByCond(g, phone, email)
 	if err != nil {
 		return nil, err
 	}
@@ -39,12 +50,15 @@ func GetSecurityQuestionByUser(g *gin.Context) ([]UserQuestionOutputParams, erro
 	//根据ID获取密保问题内容
 	questionData, err := dao.GetSecurityQuestionByIDs(g, questionIDs)
 	//拼接数据把问题内容拼接到密保问题数据中 添加到UserQuestionOutputParams 中返回
-
 	returnData := make([]UserQuestionOutputParams, 0)
 
 	for _, v := range *data {
 		for _, q := range *questionData {
 			if v.QuestionID == q.ID {
+				if !flag {
+					v.Answer = "" //不返回密保问题答案
+				}
+
 				UserQuestionOutputParams := UserQuestionOutputParams{
 					UserSecurityQuestion: v,
 					Question:             q.Question,
@@ -53,6 +67,5 @@ func GetSecurityQuestionByUser(g *gin.Context) ([]UserQuestionOutputParams, erro
 			}
 		}
 	}
-
 	return returnData, nil
 }
