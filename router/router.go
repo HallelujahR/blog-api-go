@@ -1,6 +1,7 @@
 package router
 
 import (
+	"blog/controller/articles"
 	securityquestion "blog/controller/security_question"
 	"blog/controller/user"
 
@@ -10,6 +11,7 @@ import (
 // 初始化路由
 func InitRouter(g *gin.Engine) *gin.Engine {
 	g = InitUserRouter(g)
+	g = InitArticleRouter(g)
 	return g
 }
 
@@ -30,4 +32,14 @@ func InitUserRouter(g *gin.Engine) *gin.Engine {
 
 	return g
 
+}
+
+// 文章相关路由
+func InitArticleRouter(g *gin.Engine) *gin.Engine {
+	// 用户注册密码相关路由
+	a := g.Group("/article")
+	{
+		a.GET("/get_article", articles.GetArticles) //获取文章
+	}
+	return g
 }

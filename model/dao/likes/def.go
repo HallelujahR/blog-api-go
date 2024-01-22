@@ -1,4 +1,4 @@
-package likes
+package dao
 
 import (
 	"time"
